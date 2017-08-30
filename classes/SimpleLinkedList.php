@@ -53,11 +53,14 @@ class SimpleLinkedList {
         }
         $newNode = new Node($data);
         $iterator = $this->first;
-        while ($iterator->next) {
+        while ($iterator) {
             if ($iterator->data == $key) {
                 $newNode->next = $iterator->next;
                 $iterator->next = $newNode;
                 $this->count++;
+                if($iterator->data== $this->last->data){
+                    $this->last=$newNode;
+                }
                 return true;
             }
             $iterator = $iterator->next;
@@ -70,24 +73,21 @@ class SimpleLinkedList {
             return false;
         }
         $newNode = new Node($data);
-        if ($this->count == 1) {
-            if ($this->first->data == $key) {
-                $newNode->next = $this->first;
-                $this->first = $newNode;
-                $this->count++;
-                return true;
-            } else {
-                return false;
-            }
-        }
-        $iterator = $this->first;
-        while ($iterator->next) {
-            if ($iterator->next->data == $key) {
-                $newNode->next = $iterator->next;
-                $iterator->next = $newNode;
+        $prev = $iterator = $this->first;
+        while ($iterator) {
+            if ($iterator->data == $key) {
+                if ($iterator->data == $this->first->data) {
+                    $this->first = $newNode;
+                    $newNode->next = $iterator;
+                    $this->count++;
+                    return true;
+                }
+                $prev->next = $newNode;
+                $newNode->next = $iterator;
                 $this->count++;
                 return true;
             }
+            $prev = $iterator;
             $iterator = $iterator->next;
         }
         return false;
@@ -96,11 +96,87 @@ class SimpleLinkedList {
     public function isEmpty() {
         return $this->count == 0;
     }
-    
-    public function remove($key){}
-    
-    public function add($data){}
-    public function reverse(){}
-    public function find($term){}
+
+    public function remove($key) {
+
+        $prev = $current = $this->first;
+        while ($current) {
+            if ($current->data == $key) {
+                if ($this->first->data == $key) {
+                    $this->first = $current->next;
+                } elseif ($this->last->data == $key) {
+                    $this->last = $prev;
+                    $prev->next = null;
+                } else {
+                    $prev->next = $current->next;
+                }
+                $this->count--;
+                return $current->data;
+            }
+            $prev = $current;
+            $current = $current->next;
+        }
+        return false;
+    }
+
+    public function add($data) {
+        $new = new Node($data);
+        if ($this->isEmpty()) {
+            $this->first = $this->last = $new;
+            $this->count++;
+            return $this->last->data;
+        }
+        $this->last->next = $new;
+        $this->last = $new;
+        $this->count++;
+        return $this->last->data;
+    }
+
+    public function reverse() {
+        //print_r($this->last->data);exit;
+        $reverse = new SimpleLinkedList();
+
+        while ($this->count > 0) {
+            $reverse->add($this->remove($this->last->data));
+        }
+
+        return $reverse->render();
+    }
+
+    public function find($term) {
+        $current = $this->first;
+        while ($current) {
+            if ($current->data == $term) {
+                return $current;
+            }
+        }
+        return false;
+    }
+
+    public function render() {
+        $result = "";
+        $current = $this->first;
+        while ($current) {
+            $result .= " {$current->data} =>";
+            $current = $current->next;
+        }
+        return $result;
+    }
 
 }
+
+$list = new SimpleLinkedList();
+$list->add(3);
+$list->add(35);
+$list->add(7);
+
+$list->insertAfter(3, 62);
+$list->insertAfter(7, 100);
+$list->insertBefore(3, 620);
+
+print_r($list->render() . "<br>");
+print_r($list->reverse());
+exit;
+
+
+

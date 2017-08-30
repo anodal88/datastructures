@@ -13,8 +13,8 @@
  */
 class Node {
 
-    private $next;
-    private $data;
+    public $next;
+    public $data;
 
     public function __construct($data = null) {
         $this->next = null;
